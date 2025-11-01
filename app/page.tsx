@@ -38,6 +38,16 @@ function DefinitionToggle({ question, answer }: DefinitionToggleProps) {
   );
 }
 
+function NumberSkeleton({ className }: { className?: string }) {
+  return (
+    <span
+      className={`inline-block animate-pulse rounded-md bg-zinc-200/80 dark:bg-zinc-800/80 ${className ?? ""}`}
+      aria-busy="true"
+      aria-live="polite"
+    />
+  );
+}
+
 const validatorStats = [
   {
     network: "Ethereum",
@@ -90,17 +100,79 @@ const validatorStats = [
 ];
 
 export default function Home() {
+  const [solanaData, setSolanaData] = React.useState<{ total: number; updatedAt: string } | null>(null);
+  const [solanaLoading, setSolanaLoading] = React.useState(true);
+  const [solanaError, setSolanaError] = React.useState<string | null>(null);
+  const [ethData, setEthData] = React.useState<{ total: number; updatedAt: string } | null>(null);
+  const [ethLoading, setEthLoading] = React.useState(true);
+  const [ethError, setEthError] = React.useState<string | null>(null);
+  const [ethNodeData, setEthNodeData] = React.useState<{ total: number; updatedAt: string } | null>(null);
+  const [ethNodeLoading, setEthNodeLoading] = React.useState(true);
+  const [ethNodeError, setEthNodeError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/solana/total-vote-accounts", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setSolanaData(data);
+      } catch (err) {
+        if (isMounted) setSolanaError("Failed to load Solana data");
+      } finally {
+        if (isMounted) setSolanaLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/ethereum/active-validator-keys", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setEthData(data);
+      } catch (err) {
+        if (isMounted) setEthError("Failed to load Ethereum data");
+      } finally {
+        if (isMounted) setEthLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/ethereum/beacon-node-count", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setEthNodeData(data);
+      } catch (err) {
+        if (isMounted) setEthNodeError("Failed to load Ethereum node count");
+      } finally {
+        if (isMounted) setEthNodeLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-4 py-16 font-sans text-zinc-950 dark:from-zinc-950 dark:via-zinc-950 dark:to-black dark:text-zinc-50">
       <main className="w-full max-w-4xl space-y-12">
         <header className="space-y-4 text-center md:text-left">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Validator nodes and the keys they host
+            Who has more validators?
           </h1>
           <p className="text-base text-zinc-600 dark:text-zinc-400">
-            Headline counts show validator nodes online, with validator keys as
-            supporting context. Data is currently hard-coded while the live feed
-            is under development.
+            Data updated daily.
           </p>
         </header>
 
@@ -124,7 +196,15 @@ export default function Home() {
               <CardContent className="flex flex-col gap-8 px-8 py-10 md:py-12">
                 <div className="space-y-2">
                   <span className="text-5xl font-semibold tracking-tight sm:text-6xl">
-                    {stat.primary.count}
+                    {stat.network === "Solana"
+                      ? (solanaLoading
+                        ? <NumberSkeleton className="h-[1em] w-32 align-middle" />
+                        : (solanaData ? solanaData.total.toLocaleString() : "—"))
+                      : stat.network === "Ethereum"
+                        ? (ethNodeLoading
+                          ? <NumberSkeleton className="h-[1em] w-28 align-middle" />
+                          : (ethNodeData ? ethNodeData.total.toLocaleString() : "—"))
+                        : stat.primary.count}
                   </span>
                   <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
                     {stat.primary.label}
@@ -141,7 +221,15 @@ export default function Home() {
                       {stat.secondary.label}
                     </span>
                     <span className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-                      {stat.secondary.count}
+                      {stat.network === "Solana"
+                        ? (solanaLoading
+                          ? <NumberSkeleton className="h-[0.9em] w-16 align-middle" />
+                          : (solanaData ? solanaData.total.toLocaleString() : "—"))
+                        : stat.network === "Ethereum"
+                          ? (ethLoading
+                            ? <NumberSkeleton className="h-[0.9em] w-20 align-middle" />
+                            : (ethData ? ethData.total.toLocaleString() : "—"))
+                          : stat.secondary.count}
                     </span>
                   </div>
                   <div className="mt-3">
