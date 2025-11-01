@@ -54,7 +54,7 @@ const validatorStats = [
     logo: "/ethereum.svg",
     primary: {
       count: "≈11,700",
-      label: "Estimated beacon and propagation nodes",
+      label: "Estimated Beacon nodes",
       definition: {
         question: "What is a Beacon node?",
         answer:
