@@ -292,9 +292,6 @@ export default function Home() {
                   </span>
                 </li>
               </ul>
-              <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-500">
-                Sources to be linked once live data feeds are connected.
-              </p>
             </CardContent>
           </Card>
         </section>
