@@ -298,6 +298,38 @@ export default function Home() {
             </CardContent>
           </Card>
         </section>
+
+        <section>
+          <Card className="border-zinc-200/70 bg-white/80 dark:border-zinc-800/70 dark:bg-zinc-950/60">
+            <CardHeader className="space-y-3">
+              <CardTitle className="text-xs font-medium uppercase tracking-[0.28em] text-zinc-500 dark:text-zinc-400">
+                Data sources
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-8 pb-10 text-sm text-zinc-600 dark:text-zinc-300">
+              <ul className="space-y-3">
+                <li className="flex gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                  <span>
+                    Ethereum beacon node count: <a className="underline decoration-dotted underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100" href="https://nodewatch.io/" target="_blank" rel="noreferrer noopener">Nodewatch</a>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                  <span>
+                    Ethereum active validator keys: <a className="underline decoration-dotted underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100" href="https://ethereum.github.io/beacon-APIs/#/Beacon/getStateValidators" target="_blank" rel="noreferrer noopener">Beacon API (state validators)</a>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                  <span>
+                    Solana voting validators: <a className="underline decoration-dotted underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100" href="https://solana.com/docs/rpc/http/getVoteAccounts" target="_blank" rel="noreferrer noopener">RPC getVoteAccounts</a>
+                  </span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
       </main>
     </div>
   );
