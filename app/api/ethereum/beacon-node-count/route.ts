@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const ONE_DAY_SECONDS = 60 * 60 * 24;
-export const revalidate = ONE_DAY_SECONDS;
+export const revalidate = 86400;
 
 const NODEWATCH_URL = process.env.NODEWATCH_URL || "https://nodewatch.io/";
 

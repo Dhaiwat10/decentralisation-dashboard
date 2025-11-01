@@ -4,8 +4,8 @@ import { NextResponse } from 'next/server';
 // Cache duration: 24 hours = 86400 seconds
 const CACHE_DURATION = 86400;
 
-// Export revalidate for route segment config
-export const revalidate = CACHE_DURATION;
+// Export revalidate for route segment config (must be a static literal)
+export const revalidate = 86400;
 
 const ETH_BEACON_API =
   process.env.ETHEREUM_BEACON_API ||
