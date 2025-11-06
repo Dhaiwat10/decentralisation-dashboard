@@ -109,6 +109,15 @@ export default function Home() {
   const [ethNodeData, setEthNodeData] = React.useState<{ total: number; updatedAt: string } | null>(null);
   const [ethNodeLoading, setEthNodeLoading] = React.useState(true);
   const [ethNodeError, setEthNodeError] = React.useState<string | null>(null);
+  const [tvlData, setTvlData] = React.useState<{ eth: { tvlUsd: number }; solana: { tvlUsd: number }; updatedAt: string } | null>(null);
+  const [tvlLoading, setTvlLoading] = React.useState(true);
+  const [tvlError, setTvlError] = React.useState<string | null>(null);
+  const [pricesData, setPricesData] = React.useState<{ eth: { priceUsd: number }; solana: { priceUsd: number }; updatedAt: string } | null>(null);
+  const [pricesLoading, setPricesLoading] = React.useState(true);
+  const [pricesError, setPricesError] = React.useState<string | null>(null);
+  const [solStakedData, setSolStakedData] = React.useState<{ totalSol: number; updatedAt: string } | null>(null);
+  const [solStakedLoading, setSolStakedLoading] = React.useState(true);
+  const [solStakedError, setSolStakedError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -164,6 +173,60 @@ export default function Home() {
       isMounted = false;
     };
   }, []);
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/tvl", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setTvlData(data);
+      } catch (err) {
+        if (isMounted) setTvlError("Failed to load TVL");
+      } finally {
+        if (isMounted) setTvlLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/prices", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setPricesData(data);
+      } catch (err) {
+        if (isMounted) setPricesError("Failed to load prices");
+      } finally {
+        if (isMounted) setPricesLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  React.useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/solana/total-staked", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (isMounted) setSolStakedData(data);
+      } catch (err) {
+        if (isMounted) setSolStakedError("Failed to load Solana total staked");
+      } finally {
+        if (isMounted) setSolStakedLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 px-4 py-16 font-sans text-zinc-950 dark:from-zinc-950 dark:via-zinc-950 dark:to-black dark:text-zinc-50">
       <main className="w-full max-w-4xl space-y-12">
@@ -195,6 +258,13 @@ export default function Home() {
               </CardHeader>
               <CardContent className="flex flex-col gap-8 px-8 py-10 md:py-12">
                 <div className="space-y-2">
+                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                    {stat.primary.label}
+                  </p>
+                  <DefinitionToggle
+                    question={stat.primary.definition.question}
+                    answer={stat.primary.definition.answer}
+                  />
                   <span className="text-5xl font-semibold tracking-tight sm:text-6xl">
                     {stat.network === "Solana"
                       ? (solanaLoading
@@ -206,20 +276,17 @@ export default function Home() {
                           : (ethNodeData ? ethNodeData.total.toLocaleString() : "—"))
                         : stat.primary.count}
                   </span>
-                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                    {stat.primary.label}
-                  </p>
-                  <DefinitionToggle
-                    question={stat.primary.definition.question}
-                    answer={stat.primary.definition.answer}
-                  />
                 </div>
 
                 <div className="rounded-2xl border border-zinc-200/60 bg-white/80 px-4 py-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/60 dark:text-zinc-300">
-                  <div className="flex items-baseline justify-between">
+                  <div className="space-y-2">
                     <span className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">
                       {stat.secondary.label}
                     </span>
+                    <DefinitionToggle
+                      question={stat.secondary.definition.question}
+                      answer={stat.secondary.definition.answer}
+                    />
                     <span className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
                       {stat.network === "Solana"
                         ? (solanaLoading
@@ -232,15 +299,111 @@ export default function Home() {
                           : stat.secondary.count}
                     </span>
                   </div>
-                  <div className="mt-3">
-                    <DefinitionToggle
-                      question={stat.secondary.definition.question}
-                      answer={stat.secondary.definition.answer}
-                    />
+                </div>
+
+                <div className="rounded-2xl border border-zinc-200/60 bg-white/80 px-4 py-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/60 dark:text-zinc-300">
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">
+                      {stat.network === "Ethereum" ? "Total ETH staked" : "Total SOL staked"}
+                    </span>
+                    {stat.network === "Ethereum" ? (
+                      <DefinitionToggle
+                        question="How is Total ETH staked estimated?"
+                        answer="This is an estimate: 32 ETH multiplied by the number of active validator keys."
+                      />
+                    ) : (
+                      <DefinitionToggle
+                        question="How is Total SOL staked calculated?"
+                        answer="This sums activated stake across all validators (current and delinquent), converted from lamports to SOL."
+                      />
+                    )}
+                    <span className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+                      {stat.network === "Ethereum"
+                        ? (ethLoading || pricesLoading
+                          ? <NumberSkeleton className="h-[0.9em] w-44 align-middle" />
+                          : (ethData && pricesData
+                            ? (() => {
+                                const ethStaked = ethData.total * 32;
+                                const usd = ethStaked * pricesData.eth.priceUsd;
+                                return `${ethStaked.toLocaleString()} ETH (≈ ${(usd).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 })})`;
+                              })()
+                            : "—"))
+                        : stat.network === "Solana"
+                          ? (solStakedLoading || pricesLoading
+                            ? <NumberSkeleton className="h-[0.9em] w-48 align-middle" />
+                            : (solStakedData && pricesData
+                              ? (() => {
+                                  const solStaked = solStakedData.totalSol;
+                                  const usd = solStaked * pricesData.solana.priceUsd;
+                                  return `${solStaked.toLocaleString(undefined, { maximumFractionDigits: 0 })} SOL (≈ ${(usd).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 })})`;
+                                })()
+                              : "—"))
+                          : "—"}
+                    </span>
                   </div>
                 </div>
 
-                
+                <div className="rounded-2xl border border-zinc-200/60 bg-white/80 px-4 py-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/60 dark:text-zinc-300">
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">
+                      {stat.network === "Ethereum" ? "Nodes per $1M TVL" : "Validators per $1M TVL"}
+                    </span>
+                    <DefinitionToggle
+                      question="How is this calculated?"
+                      answer={
+                        stat.network === "Ethereum"
+                          ? "Beacon nodes per $1,000,000 of chain TVL. Formula: nodes × 1,000,000 ÷ TVL (USD)."
+                          : "Validators per $1,000,000 of chain TVL. Formula: validators × 1,000,000 ÷ TVL (USD)."
+                      }
+                    />
+                    <span className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+                      {stat.network === "Ethereum"
+                        ? (ethNodeLoading || tvlLoading
+                          ? <NumberSkeleton className="h-[0.9em] w-20 align-middle" />
+                          : (tvlData && ethNodeData && tvlData.eth.tvlUsd > 0
+                            ? ((ethNodeData.total * 1_000_000) / tvlData.eth.tvlUsd).toLocaleString(undefined, { maximumFractionDigits: 2 })
+                            : "—"))
+                        : stat.network === "Solana"
+                          ? (solanaLoading || tvlLoading
+                            ? <NumberSkeleton className="h-[0.9em] w-20 align-middle" />
+                            : (tvlData && solanaData && tvlData.solana.tvlUsd > 0
+                              ? ((solanaData.total * 1_000_000) / tvlData.solana.tvlUsd).toLocaleString(undefined, { maximumFractionDigits: 2 })
+                              : "—"))
+                          : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-200/60 bg-white/80 px-4 py-4 text-sm text-zinc-600 shadow-sm dark:border-zinc-800/60 dark:bg-zinc-900/60 dark:text-zinc-300">
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">
+                      {stat.network === "Ethereum" ? "TVL secured per node" : "TVL secured per validator"}
+                    </span>
+                    <DefinitionToggle
+                      question="What does this mean?"
+                      answer={
+                        stat.network === "Ethereum"
+                          ? "Total chain TVL divided by the number of beacon nodes. Approximate TVL each node helps secure."
+                          : "Total chain TVL divided by the number of active validators. Approximate TVL each validator helps secure."
+                      }
+                    />
+                    <span className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+                      {stat.network === "Ethereum"
+                        ? (ethNodeLoading || tvlLoading
+                          ? <NumberSkeleton className="h-[0.9em] w-24 align-middle" />
+                          : (tvlData && ethNodeData && ethNodeData.total > 0
+                            ? (tvlData.eth.tvlUsd / ethNodeData.total).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+                            : "—"))
+                        : stat.network === "Solana"
+                          ? (solanaLoading || tvlLoading
+                            ? <NumberSkeleton className="h-[0.9em] w-24 align-middle" />
+                            : (tvlData && solanaData && solanaData.total > 0
+                              ? (tvlData.solana.tvlUsd / solanaData.total).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+                              : "—"))
+                          : "—"}
+                    </span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -321,6 +484,18 @@ export default function Home() {
                   <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-zinc-300 dark:bg-zinc-700" />
                   <span>
                     Solana voting validators: <a className="underline decoration-dotted underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100" href="https://solana.com/docs/rpc/http/getVoteAccounts" target="_blank" rel="noreferrer noopener">RPC getVoteAccounts</a>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                  <span>
+                    TVL: <a className="underline decoration-dotted underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100" href="https://api.llama.fi/chains" target="_blank" rel="noreferrer noopener">DeFiLlama Chains API</a>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 flex-none rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                  <span>
+                    Prices: <a className="underline decoration-dotted underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100" href="https://coins.llama.fi/prices/current/coingecko:ethereum,coingecko:solana" target="_blank" rel="noreferrer noopener">DeFiLlama Coins API</a>
                   </span>
                 </li>
               </ul>
