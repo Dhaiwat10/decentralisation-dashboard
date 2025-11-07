@@ -232,7 +232,7 @@ export default function Home() {
       <main className="w-full max-w-4xl space-y-12">
         <header className="space-y-4 text-center md:text-left">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Who has more validators?
+            Ethereum vs Solana: validator metrics compared
           </h1>
           <p className="text-base text-zinc-600 dark:text-zinc-400">
             Data updated daily.

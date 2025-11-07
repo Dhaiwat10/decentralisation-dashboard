@@ -1,6 +1,6 @@
 ## Decentralisation Dashboard
 
-An explanatory visual that answers a deceptively simple question: Who has more validators?
+An explanatory visual that clarifies a deceptively simple question: How do validator metrics differ between Ethereum and Solana?
 
 The project compares Ethereum and Solana using two kinds of numbers that often get conflated:
 - Validator keys (logical identities that can be batched by an operator)
